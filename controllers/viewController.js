@@ -1,7 +1,9 @@
-const User = require("../models/userModel");
 const Tour = require("../models/tourModel");
+// const User = require("../models/userModel");
+const catchAsync = require("../utils/catchAsync");
+const AppError = require("../utils/appError");
 
-exports.getOverview = async (req, res, next) => {
+exports.getOverview = catchAsync(async (req, res, next) => {
   const tours = await Tour.find().lean();
 
   // Render the data
@@ -10,45 +12,20 @@ exports.getOverview = async (req, res, next) => {
     title: "All Tours",
     tours,
   });
-};
+});
 
-exports.getTour = async (req, res) => {
+exports.getTour = catchAsync(async (req, res, next) => {
   const tour = await Tour.findOne({ slug: req.query.tour })
     .populate({
       path: "reviews",
       fields: "review rating user",
     })
     .lean(); // mongoose object model to json model use lean
-  // const date = tour.startDates[0].toLocaleString("en-us", {
-  //   month: "long",
-  //   year: "numeric",
-  // });
-  // const details = [
-  //   {
-  //     label: "Next date",
-  //     text: date,
-  //     icon: `calendar`,
-  //   },
-  //   {
-  //     label: "Difficulty",
-  //     text: tour.difficulty,
-  //     icon: `trending-up`,
-  //   },
-  //   {
-  //     label: "Participants",
-  //     text: `${tour.maxGroupSize} people`,
-  //     icon: `user`,
-  //   },
-  //   {
-  //     label: "Rating",
-  //     text: `${tour.ratingsAverage} / 5`,
-  //     icon: `star`,
-  //   },
-  // ];
-  // tour.details = details;
-
+  if (!tour) {
+    return next(new AppError("There is no tour with that name.", 404));
+  }
   res.status(200).render("tour", { title: tour.name, tour });
-};
+});
 
 exports.getLogin = (req, res, next) => {
   // Render the data
