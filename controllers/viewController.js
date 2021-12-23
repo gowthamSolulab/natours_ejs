@@ -7,7 +7,7 @@ exports.getOverview = async (req, res, next) => {
   // Render the data
 
   res.status(200).render("overview", {
-    title: "Exciting tours for adventurous people",
+    title: "All Tours",
     tours,
   });
 };
@@ -19,33 +19,33 @@ exports.getTour = async (req, res) => {
       fields: "review rating user",
     })
     .lean(); // mongoose object model to json model use lean
-  const date = tour.startDates[0].toLocaleString("en-us", {
-    month: "long",
-    year: "numeric",
-  });
-  const details = [
-    {
-      label: "Next date",
-      text: date,
-      icon: `calendar`,
-    },
-    {
-      label: "Difficulty",
-      text: tour.difficulty,
-      icon: `trending-up`,
-    },
-    {
-      label: "Participants",
-      text: `${tour.maxGroupSize} people`,
-      icon: `user`,
-    },
-    {
-      label: "Rating",
-      text: `${tour.ratingsAverage} / 5`,
-      icon: `star`,
-    },
-  ];
-  tour.details = details;
+  // const date = tour.startDates[0].toLocaleString("en-us", {
+  //   month: "long",
+  //   year: "numeric",
+  // });
+  // const details = [
+  //   {
+  //     label: "Next date",
+  //     text: date,
+  //     icon: `calendar`,
+  //   },
+  //   {
+  //     label: "Difficulty",
+  //     text: tour.difficulty,
+  //     icon: `trending-up`,
+  //   },
+  //   {
+  //     label: "Participants",
+  //     text: `${tour.maxGroupSize} people`,
+  //     icon: `user`,
+  //   },
+  //   {
+  //     label: "Rating",
+  //     text: `${tour.ratingsAverage} / 5`,
+  //     icon: `star`,
+  //   },
+  // ];
+  // tour.details = details;
 
   res.status(200).render("tour", { title: tour.name, tour });
 };

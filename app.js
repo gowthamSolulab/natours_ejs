@@ -7,6 +7,8 @@ const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
 const ejsLayouts = require("express-ejs-layouts");
+const cookieParser = require("cookie-parser");
+// const bodyParser = require("body-parser");
 const compression = require("compression");
 
 const AppError = require("./utils/appError");
@@ -52,6 +54,7 @@ app.use(
     limit: "10kb",
   })
 );
+app.use(cookieParser());
 
 // Data Sanitization against NoSQl query injection
 app.use(mongoSanitize());
@@ -73,7 +76,13 @@ app.use(
 );
 
 app.use(compression());
-
+app.use(function (req, res, next) {
+  res.setHeader(
+    "Content-Security-Policy",
+    "script-src 'self' https://cdnjs.cloudflare.com"
+  );
+  next();
+});
 //  Routes
 
 app.use("/api/v1/tours", tourRouter);
