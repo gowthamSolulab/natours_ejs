@@ -1,4 +1,4 @@
-const nodemailer = require('nodemailer');
+const nodemailer = require("nodemailer");
 
 const sendEmail = async (options) => {
   try {
@@ -13,7 +13,7 @@ const sendEmail = async (options) => {
     });
     //2. Define the email options
     const mailOptions = {
-      from: 'Gowtham <hello@gowtham.com>',
+      from: "Gowtham <hello@gowtham.com>",
       to: options.email,
       subject: options.subject,
       text: options.message,
@@ -21,7 +21,7 @@ const sendEmail = async (options) => {
     //3. Actually send the email
     await transporter.sendMail(mailOptions);
   } catch (err) {
-    console.log(err);
+    // console.log(err);
   }
 };
 
