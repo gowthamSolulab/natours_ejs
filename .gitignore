@@ -2,4 +2,3 @@ node_modules
 config.env
 .cache
 build
-netlify.toml
