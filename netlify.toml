@@ -1,9 +1,0 @@
-[build.environment]
-    NODE_ENV=development
-    PORT=3000
-    DATABASE=mongodb+srv://gowtham:<PASSWORD>@cluster0.uxnyh.mongodb.net/natours?retryWrites=true&w=majority
-    DATABASE_PASSWORD=jhonny
-
-    JWT_SECRET=my-ultra-secure-and-ultra-long-secret
-    JWT_EXPIRES_IN=90d
-    JWT_COOKIE_EXPIRES_IN=90
