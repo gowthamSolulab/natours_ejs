@@ -11,9 +11,13 @@ dotenv.config({ path: "./config.env" });
 const app = require("./app");
 
 // database connection
-mongoose.connect(process.env.DATABASE_LOCAL, () => {
-  console.log("connected to Database");
-});
+mongoose.connect(
+  process.env.DATABASE_LOCAL,
+  { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex: true },
+  () => {
+    console.log("connected to Database");
+  }
+);
 
 const port = 3000;
 const server = app.listen(port, () => {
