@@ -22,14 +22,13 @@
 # Production context: all deploys from the Production branch set in your site’s
 # Branches settings in the UI will inherit these settings.
 [context.production]
-  publish = "output/"
+  
   command = "npm run build:js"
   environment = { NODE_ENV = "development", PORT = "3000" , DATABASE = "mongodb+srv://gowtham:<PASSWORD>@cluster0.uxnyh.mongodb.net/natours?retryWrites=true&w=majority" DATABASE_PASSWORD = "jhonny", JWT_SECRET = "my-ultra-secure-and-ultra-long-secret", JWT_EXPIRES_IN = "90d", JWT_COOKIE_EXPIRES_IN = "90" }
 
 # Deploy Preview context: all deploys generated from a pull/merge request will
 # inherit these settings.
 [context.deploy-preview]
-  publish = "dist/"
 
 # Here is another way to define context specific environment variables.
 [context.deploy-preview.environment]
