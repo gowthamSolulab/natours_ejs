@@ -13,7 +13,7 @@
   publish = "build-output/"
 
   # Default build command.
-  command = "echo 'default context'"
+  command = "npm run build:js"
 
 [[plugins]]
   # Installs the Lighthouse Build Plugin for all deploy contexts
