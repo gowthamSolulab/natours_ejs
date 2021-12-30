@@ -1,6 +1,4 @@
-const stripe = require("stripe")(
-  "sk_test_51JPkNQSGmAfV4DJDikEEAE6waE7NXPImUNY4zSKB5ZxsAywOczXQXJRuF2tR5BtyIQ7oqw4bxbH81JdatlVjDytR00hSEI9CG5"
-);
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 
 // functions for stripe
 
@@ -31,21 +29,22 @@ exports.createPaymentMethod = async (data) => {
   });
 };
 
-exports.addCardToCustomer = async (card, customerId) => {
-  const { number, exp_month, exp_year, cvc, name } = card;
+exports.addCard = async (customerId, cardDetails) => {
   // create token in stripe to add card
   const token = await stripe.tokens.create({
-    card: {
-      number,
-      exp_month,
-      exp_year,
-      cvc,
-      name,
-    },
+    card: cardDetails,
   });
   return await stripe.customers.createSource(customerId, {
     source: token.id,
   });
+};
+
+exports.getCard = async (customerId, cardId) => {
+  return await stripe.customers.retrieveSource(customerId, cardId);
+};
+
+exports.deleteCard = async (customerId, cardId) => {
+  return await stripe.customers.deleteSource(customerId, cardId);
 };
 
 exports.createPaymentIntent = async (customerId) => {
@@ -67,16 +66,10 @@ exports.createPaymentIntent = async (customerId) => {
     },
   });
 };
+
 exports.confirmPayment = async (paymentIntentId, cardId) => {
+  console.log(paymentIntentId, cardId);
   return await stripe.paymentIntents.confirm(paymentIntentId, {
     payment_method: cardId,
   });
-};
-
-exports.getCard = async (customerId, cardId) => {
-  return await stripe.customers.retrieveSource(customerId, cardId);
-};
-
-exports.deleteCard = async (customerId, cardId) => {
-  return await stripe.customers.deleteSource(customerId, cardId);
 };
