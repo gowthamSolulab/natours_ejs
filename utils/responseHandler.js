@@ -1,4 +1,5 @@
-const { errorData } = require("./stripeErrorData");
+const { errorData } = require("./errorData");
+const { logger } = require("../log/logger");
 
 module.exports = {
   handleResponse: (statusCode, data, res) => {
@@ -11,6 +12,7 @@ module.exports = {
     const error = errorData.find(
       (statusobj) => statusobj.status === statusCode
     );
-    res.status(statusCode).json(error);
+    logger.error(`${error.statusCode} - ${err.message}`);
+    return res.status(statusCode).json(error);
   },
 };
