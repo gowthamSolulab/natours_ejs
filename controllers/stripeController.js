@@ -2,59 +2,66 @@ const catchAsync = require("../utils/catchAsync");
 const stripeService = require("../utils/stripe");
 const { handleResponse, handleError } = require("../utils/responseHandler");
 
-const stripe = require("stripe")(
-  "sk_test_51JPkNQSGmAfV4DJDikEEAE6waE7NXPImUNY4zSKB5ZxsAywOczXQXJRuF2tR5BtyIQ7oqw4bxbH81JdatlVjDytR00hSEI9CG5"
-);
-
 exports.getCard = catchAsync(async (req, res) => {
-  const { default_source } = await stripeService.getCustomer(req.params.id);
+  const { default_source } = await stripeService.getCustomer(req.user.stripeId);
   if (default_source) {
-    const card = await stripeService.getCard(req.params.id, default_source);
-    return handleResponse(200, card, res);
+    const { id, name, last4 } = await stripeService.getCard(
+      req.user.stripeId,
+      default_source
+    );
+    responseData = {
+      card_id: id,
+      customer_name: name,
+      last4digits: last4,
+    };
+    return handleResponse(200, responseData, res);
   }
-  return handleError(500, res);
+  return handleResponse(200, "card is not added ", res);
 });
 
 exports.deleteCard = catchAsync(async (req, res) => {
-  const { default_source } = await stripeService.getCustomer(req.params.id);
+  const { default_source } = await stripeService.getCustomer(req.user.stripeId);
   if (default_source) {
-    const card = await stripeService.deleteCard(req.params.id, default_source);
-    return handleResponse(200, card, res);
+    const deletedcard = await stripeService.deleteCard(
+      req.user.stripeId,
+      default_source
+    );
+    return handleResponse(200, deletedcard, res);
   }
-  return handleError(500, res);
+  return handleResponse(200, "card is not added", res);
 });
 
 exports.addCard = catchAsync(async (req, res) => {
-  const { cardDetails } = req.body;
-  const card = await stripeService.addCardToCustomer(
-    req.params.id,
-    cardDetails
-  );
-  if (card) return handleResponse(200, card, res);
-  return handleError(500, res);
+  const { id, name } = await stripeService.addCard(req.user.stripeId, req.body);
+  responseData = {
+    card_id: id,
+    customer_name: name,
+  };
+  return handleResponse(200, responseData, res);
 });
 
 exports.createPaymentIntent = catchAsync(async (req, res) => {
-  const { default_source } = await stripeService.getCustomer(req.params.id);
+  const { default_source } = await stripeService.getCustomer(req.user.stripeId);
   if (default_source) {
-    const paymentIntent = await stripeService.createPaymentIntent(
-      req.params.id
-    );
-    return handleResponse(200, paymentIntent, res);
+    const { amount, payment_method_types, id } =
+      await stripeService.createPaymentIntent(req.user.stripeId);
+    responseData = {
+      paymentIntentId: id,
+      cardId: default_source,
+      amount: amount / 100,
+      payment_method: payment_method_types[0],
+    };
+    return handleResponse(200, responseData, res);
   }
   return handleError(500, res);
 });
 
 exports.confirmPayment = catchAsync(async (req, res) => {
   const { paymentIntentId, cardId } = req.body;
-
-  const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
-  if (paymentIntent) {
-    const paymentIntent = await stripeService.confirmPayment(
-      paymentIntentId,
-      cardId
-    );
-    return handleResponse(200, paymentIntent, res);
-  }
-  return handleError(500, res);
+  const payment = await stripeService.confirmPayment(paymentIntentId, cardId);
+  const data = {
+    message: "payment done successfully",
+    amount: payment.amount / 100,
+  };
+  return handleResponse(200, data, res);
 });
