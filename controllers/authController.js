@@ -5,6 +5,7 @@ const User = require("./../models/userModel");
 const catchAsync = require("./../utils/catchAsync");
 const AppError = require("./../utils/appError");
 const Email = require("./../utils/email");
+const stripe = require("../utils/stripe");
 
 const signToken = (id) => {
   return jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -36,15 +37,18 @@ const createSendToken = (user, statusCode, req, res) => {
 };
 
 exports.signup = catchAsync(async (req, res, next) => {
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-  });
+  const { name, email, password, passwordConfirm } = req.body;
 
-  // const url = `${req.protocol}://${req.get("host")}/me`;
-  // await new Email(newUser, url).sendWelcome();
+  // create stripe Customer
+  const { id } = await stripe.createCustomer({ name, email });
+
+  const newUser = await User.create({
+    name,
+    email,
+    password,
+    passwordConfirm,
+    stripeId: id,
+  });
 
   createSendToken(newUser, 201, req, res);
 });
