@@ -17,7 +17,7 @@ const tourRouter = require("./routes/tourRoutes");
 const userRouter = require("./routes/userRoutes");
 const reviewRouter = require("./routes/reviewRoutes");
 const viewRouter = require("./routes/viewRoutes");
-const { logger } = require("./log/logger");
+const stripeRouter = require("./routes/stripeRoutes");
 
 const app = express();
 
@@ -28,8 +28,6 @@ app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
 app.use(ejsLayouts);
 app.set("layout", "./layouts/index");
-
-// Serving static files
 
 //  Global  Middlewares
 
@@ -49,12 +47,13 @@ const limiter = rateLimit({
 });
 app.use("/api", limiter);
 
-// Body parser, reading data from body into req.body
+// json middleware for parsing data
 app.use(
   express.json({
     limit: "10kb",
   })
 );
+
 app.use(express.urlencoded({ extended: true, limit: "10kb" }));
 app.use(cookieParser());
 
@@ -77,25 +76,22 @@ app.use(
   })
 );
 
+// compress response body
 app.use(compression());
-app.use(function (req, res, next) {
-  res.setHeader(
-    "Content-Security-Policy",
-    "script-src 'self' https://cdnjs.cloudflare.com"
-  );
-  next();
-});
+
 //  Routes
 
 app.use("/api/v1/tours", tourRouter);
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/reviews", reviewRouter);
+app.use("/api/v1/stripe", stripeRouter);
 app.use("/", viewRouter);
 
 app.all("*", (req, res, next) => {
   next(new AppError(`Cant find ${req.originalUrl} on this server !`, 404));
 });
 
+// error
 app.use(globalErrorHandler);
 
 module.exports = app;
